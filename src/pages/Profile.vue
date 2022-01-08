@@ -47,20 +47,13 @@ export default {
     async function getProfile() {
       try {
         loading.value = true;
-        store.user = supabase.auth.user();
+        const user = supabase.auth.user();
+        store.user = user;
 
-        let { data, error, status } = await supabase
-          .from("profiles")
-          .select(`username, fullname, avatar_url`)
-          .eq("id", store.user.id)
-          .single();
-
-        if (error && status !== 406) throw error;
-
-        if (data) {
-          username.value = data.username;
-          fullname.value = data.fullname;
-          avatar_url.value = data.avatar_url;
+        if (user) {
+          username.value = user.user_metadata.name;
+          fullname.value = user.user_metadata.full_name;
+          avatar_url.value = user.user_metadata.avatar_url;
         }
       } catch (error) {
         alert(error.message);
