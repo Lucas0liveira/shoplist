@@ -1,0 +1,27 @@
+{
+  "name": "shopist",
+  "version": "0.0.0",
+  "scripts": {
+    "build": "vite build",
+    "lint": "vue-cli-service lint",
+    "dev": "vite",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@fortawesome/vue-fontawesome": "^2.0.6",
+    "@supabase/supabase-js": "^1.29.1",
+    "vue": "^3.2.25",
+    "vue-router": "^4.0.12"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^2.0.0",
+    "@vue/cli-plugin-eslint": "^4.5.15",
+    "@vue/cli-plugin-router": "^4.5.15",
+    "@vue/eslint-config-prettier": "^6.0.0",
+    "eslint": "^6.7.2",
+    "eslint-plugin-prettier": "^3.3.1",
+    "eslint-plugin-vue": "^7.0.0",
+    "prettier": "^2.2.1",
+    "vite": "^2.7.2"
+  }
+}
