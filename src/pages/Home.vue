@@ -7,7 +7,7 @@
       </button>
     </div>
 
-    <ul class="list-group" v-if="lists">
+    <ul class="list-group" v-if="!loading">
       <router-link
         v-for="list in lists"
         :key="list.id"
@@ -18,9 +18,11 @@
           class="list-group-item d-flex justify-content-between align-items-center mb-1"
         >
           {{ list.name }}
-          <span class="badge bg-primary rounded-pill text-white">{{
-            list.items.length
-          }}</span>
+          <span
+            v-if="list.items"
+            class="badge bg-primary rounded-pill text-white"
+            >{{ list.items.length }}</span
+          >
         </li>
       </router-link>
     </ul>
@@ -77,7 +79,7 @@ export default {
       const cleanLists = data.map((list) => ({
         id: list.id,
         name: list.name,
-        items: JSON.parse(list.items),
+        items: JSON.parse(list.items)._value,
         description: list.description,
         date: list.created_at,
       }));

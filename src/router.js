@@ -20,14 +20,7 @@ const router = createRouter({
       },
     },
     {
-      path: "/list",
-      component: List,
-      meta: {
-        requiresAuth: true,
-      },
-    },
-    {
-      path: "/list/:id",
+      path: "/list/:id?",
       component: List,
       meta: {
         requiresAuth: true,
