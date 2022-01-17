@@ -16,12 +16,15 @@
 </template>
 
 <script>
-import { ref } from "vue";
+import { ref, onMounted, computed } from "vue";
+import { useRouter } from "vue-router";
 import { supabase } from "../supabase";
 
 export default {
   setup() {
     const loading = ref(false);
+    const router = useRouter();
+    const isUserSignedIn = computed(() => Boolean(supabase.auth.user()));
 
     async function signInWithDiscord() {
       loading.value = true;
@@ -30,6 +33,13 @@ export default {
       });
       loading.value = false;
     }
+
+    onMounted(() => {
+      if (isUserSignedIn.value) {
+        console.log("OPA");
+        router.push("/");
+      }
+    });
 
     return {
       loading,
