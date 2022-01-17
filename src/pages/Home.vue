@@ -16,16 +16,10 @@
         class="accordion-item list-group-item"
         v-for="list in lists"
         :key="list.id"
+        @click="$router.push(`/list/${list.id}`)"
       >
         <div class="accordion-header" id="flush-headingOne">
-          <span
-            class="d-flex justify-content-between align-items-center collapsed"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#flush-collapseOne"
-            aria-expanded="false"
-            aria-controls="flush-collapseOne"
-          >
+          <span class="d-flex justify-content-between align-items-center">
             {{ list.name }}
             <span
               v-if="list.items"
@@ -33,29 +27,6 @@
               >{{ list.items.length }} item(s)</span
             >
           </span>
-        </div>
-        <div
-          id="flush-collapseOne"
-          class="accordion-collapse collapse"
-          aria-labelledby="flush-headingOne"
-          data-bs-parent="#accordionFlushExample"
-        >
-          <div class="accordion-body d-flex justify-content-evenly">
-            <router-link
-              :to="`/list/${list.id}`"
-              tag="button"
-              class="btn btn-warning block mx-1"
-            >
-              <i class="fas fa-pencil"></i>
-            </router-link>
-            <router-link
-              :to="`/shop/${list.id}`"
-              tag="button"
-              class="btn btn-success block mx-1"
-            >
-              <i class="fas fa-shopping-cart"></i>
-            </router-link>
-          </div>
         </div>
       </li>
     </ul>
@@ -79,7 +50,6 @@ export default {
     const loading = ref(true);
     const fullname = ref("");
     const lists = ref([]);
-    const showModal = ref(false);
 
     const getProfile = async () => {
       try {
@@ -134,7 +104,6 @@ export default {
       loading,
       fullname,
       lists,
-      showModal,
       newList,
     };
   },
