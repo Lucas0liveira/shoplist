@@ -7,7 +7,6 @@
       aria-label="Novo item"
       aria-describedby="button-addon"
       v-model="newItem"
-      @keyup.enter="addItem"
     />
     <button
       class="btn btn-primary"

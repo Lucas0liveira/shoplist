@@ -1,12 +1,6 @@
 <template>
   <div class="list">
-    <div class="header d-flex justify-content-between">
-      <router-link to="/">
-        <i class="fas fa-arrow-left"></i>
-      </router-link>
-      <button class="btn btn-outline-danger" @click="deleteList">Apagar</button>
-    </div>
-
+    <Return />
     <input
       type="text"
       placeholder="Nova Lista..."
@@ -16,51 +10,53 @@
     />
   </div>
 
-  <div class="input-group mb-3">
-    <input
-      type="text"
-      class="form-control"
-      placeholder="Bolho de murango"
-      aria-label="Novo item"
-      aria-describedby="button-addon"
-      v-model="newItem"
-    />
-    <button
-      class="btn btn-primary"
-      style="border-radius: 0px 5px 5px 0px"
-      type="button"
-      @click="addItem"
-      id="button-addon"
-    >
-      <i class="fas fa-plus" style="color: white"></i>
-    </button>
-  </div>
+  <NewItemInput @input="(input) => addItem(input)" />
 
-  <ul class="list-group" v-if="items">
+  <ul class="list-group" v-if="!loading && editing">
     <li
       class="list-group-item d-flex justify-content-between"
       v-for="(item, index) in items"
       :key="index"
     >
-      - {{ item.name }}
-      <div class="amount-control">
-        <button
-          class="btn btn-secondary btn-sm"
-          @click="item.amount > 1 ? item.amount-- : removeItem(index)"
-        >
-          <i class="fas fa-minus" style="color: white"></i>
-        </button>
-        <span class="mx-2 lead">
-          {{ item.amount }}
-        </span>
-        <button class="btn btn-secondary btn-sm" @click="item.amount++">
-          <i class="fas fa-plus" style="color: white"></i>
-        </button>
+      <div class="form-check">
+        <input
+          class="form-check-input"
+          type="checkbox"
+          v-model="item.picked"
+          @change="getPrice(item)"
+          id="flexCheckDefault"
+        />
+        <label class="form-check-label" for="flexCheckDefault">
+          {{ item.name }}
+        </label>
       </div>
+
+      <AmountControl
+        @input="(input) => (item.amount = input)"
+        @remove="removeItem(index)"
+        :value="item.amount"
+      />
+      <PriceModal
+        :showModal="showModal"
+        @close="showModal = false"
+        @save="(price) => checkoutItem(item, price)"
+      />
     </li>
   </ul>
 
-  <button class="btn btn-primary mt-3" @click="saveList">Salvar Lista</button>
+  <div v-else class="d-flex justify-content-center">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+  <div class="d-flex justify-content-between mt-3">
+    <button class="btn btn-primary mx-1" @click="saveList">Salvar Lista</button>
+    <button class="btn btn-danger" @click="deleteList">
+      <i class="fas fa-trash" style="color: white"></i>
+    </button>
+    <div class="mt-3">Total: R$ {{ total }}</div>
+  </div>
 </template>
 
 <script>
@@ -68,16 +64,24 @@ import { onMounted, ref } from "vue";
 import { supabase } from "../supabase";
 import { store } from "../store";
 import { useRoute, useRouter } from "vue-router";
+import Return from "../components/Return.vue";
+import AmountControl from "../components/AmountControl.vue";
+import NewItemInput from "../components/NewItemInput.vue";
+import PriceModal from "../components/PriceModal.vue";
 
 export default {
   setup() {
-    const loading = ref(true);
+    const loading = ref(false);
+    const editing = ref(true);
+    const buying = ref(false);
     const list = ref({});
     const newItem = ref("");
     const items = ref([]);
     const route = useRoute();
     const router = useRouter();
     const id = route.params.id;
+    const total = ref(0);
+    const showModal = ref(false);
 
     const addItem = async () => {
       items.value.push({
@@ -96,6 +100,7 @@ export default {
     };
 
     const getList = async () => {
+      loading.value = true;
       let { data, error, status } = await supabase
         .from("lists")
         .select(`id, items, name, description, user, created_at`)
@@ -111,6 +116,7 @@ export default {
       };
       list.value = cleanList;
       items.value = cleanList.items;
+      loading.value = false;
     };
 
     const saveList = async () => {
@@ -144,6 +150,23 @@ export default {
       }
     };
 
+    const getPrice = (item) => {
+      if (item.picked === true) {
+        showModal.value = true;
+        return;
+      }
+      total.value -= item.amount * item.price;
+      if (total.value < 0) {
+        total.value = 0;
+      }
+    };
+
+    const checkoutItem = (item, price) => {
+      item.price = price;
+      total.value += item.amount * item.price;
+      saveList();
+    };
+
     onMounted(() => {
       if (id) {
         getList();
@@ -154,12 +177,25 @@ export default {
       list,
       items,
       newItem,
+      loading,
+      editing,
+      buying,
+      total,
+      showModal,
       addItem,
       removeItem,
       saveList,
       deleteList,
+      getPrice,
+      checkoutItem,
       onMounted,
     };
+  },
+  components: {
+    Return,
+    AmountControl,
+    NewItemInput,
+    PriceModal,
   },
 };
 </script>
