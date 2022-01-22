@@ -10,36 +10,39 @@
     />
   </div>
 
-  <NewItemInput @input="(input) => addItem(input)" />
+  <NewItemInput @insert="({ input }) => addItem(input)" />
 
   <ul class="list-group" v-if="!loading && editing">
     <li
-      class="list-group-item d-flex justify-content-between"
-      v-for="(item, index) in items"
-      :key="index"
+      class="list-group-item nes-container is-rounded d-flex items-center justify-content-between p-1"
+      :class="item.picked ? 'picked' : ''"
+      v-for="item in items"
+      :key="item.id"
     >
       <div class="form-check">
-        <input
-          class="form-check-input"
-          type="checkbox"
-          v-model="item.picked"
-          @change="getPrice(item)"
-          id="flexCheckDefault"
-        />
-        <label class="form-check-label" for="flexCheckDefault">
-          {{ item.name }}
+        <label>
+          <input
+            class="nes-checkbox"
+            type="checkbox"
+            v-model="item.picked"
+            @change="getPrice(item)"
+            id="flexCheckDefault"
+          />
+          <span>
+            {{ item.name }}
+          </span>
         </label>
       </div>
 
       <AmountControl
         @input="(input) => (item.amount = input)"
-        @remove="removeItem(index)"
+        @remove="removeItem(item.id)"
         :value="item.amount"
       />
       <PriceModal
         :showModal="showModal"
-        @close="showModal = false"
-        @save="(price) => checkoutItem(item, price)"
+        @close="closeModal"
+        @save="({ price }) => checkoutItem(price)"
       />
     </li>
   </ul>
@@ -50,17 +53,33 @@
     </div>
   </div>
 
-  <div class="d-flex justify-content-between mt-3">
-    <button class="btn btn-primary mx-1" @click="saveList">Salvar Lista</button>
-    <button class="btn btn-danger" @click="deleteList">
+  <div class="d-flex justify-content-between mt-3" style="margin-bottom: 6rem">
+    <button
+      class="nes-btn is-primary flex flex-center items-center mx-1"
+      @click="saveList"
+    >
+      Salvar Lista
+    </button>
+    <button
+      class="nes-btn is-error flex flex-center items-center"
+      @click="deleteList"
+    >
       <i class="fas fa-trash" style="color: white"></i>
     </button>
-    <div class="mt-3">Total: R$ {{ total }}</div>
+  </div>
+  <div class="total nes-container">
+    <div>R$ {{ total }}</div>
+    <progress
+      class="nes-progress"
+      :class="progressColor"
+      :value="progress"
+      max="100"
+    ></progress>
   </div>
 </template>
 
 <script>
-import { onMounted, ref } from "vue";
+import { onMounted, ref, computed } from "vue";
 import { supabase } from "../supabase";
 import { store } from "../store";
 import { useRoute, useRouter } from "vue-router";
@@ -75,33 +94,55 @@ export default {
     const editing = ref(true);
     const buying = ref(false);
     const list = ref({});
-    const newItem = ref("");
     const items = ref([]);
     const route = useRoute();
     const router = useRouter();
     const id = route.params.id;
-    const total = ref(0);
     const showModal = ref(false);
+    const currentId = ref(null);
 
-    const addItem = async () => {
+    const progress = computed(() => {
+      const picked = items.value.filter((item) => item.picked === true).length;
+      return (picked / items.value.length) * 100;
+    });
+
+    const progressColor = computed(() => {
+      if (progress.value <= 25) {
+        return "is-error";
+      }
+      if (progress.value > 75) {
+        return "is-success";
+      }
+      return "is-warning";
+    });
+
+    const total = computed(() => {
+      let price = 0;
+      const prices = items.value
+        .filter((item) => item.picked === true)
+        .map((item) => item.price * item.amount);
+      prices.map((item) => (price += item));
+      return price.toFixed(2);
+    });
+
+    const addItem = async (newItem) => {
       items.value.push({
         amount: 1,
-        name: newItem.value,
+        name: newItem,
         picked: false,
         price: 0,
       });
-      newItem.value = "";
     };
 
-    const removeItem = (index) => {
+    const removeItem = (id) => {
       if (confirm("Deseja remover esse item?")) {
-        items.value.splice(index, 1);
+        items.value = items.value.filter((item) => item.id !== id);
       }
     };
 
     const getList = async () => {
       loading.value = true;
-      let { data, error, status } = await supabase
+      let { data } = await supabase
         .from("lists")
         .select(`id, items, name, description, user, created_at`)
         .eq("id", id)
@@ -115,7 +156,10 @@ export default {
         date: data.created_at,
       };
       list.value = cleanList;
-      items.value = cleanList.items;
+      items.value = cleanList.items.map((item) => ({
+        ...item,
+        id: Math.random().toString(16).slice(2),
+      }));
       loading.value = false;
     };
 
@@ -128,6 +172,7 @@ export default {
           items: JSON.stringify(items),
           user: store.user.id,
           name: list.value.name,
+          total: total.value,
         };
 
         if (id) {
@@ -152,18 +197,23 @@ export default {
 
     const getPrice = (item) => {
       if (item.picked === true) {
+        currentId.value = item.id;
         showModal.value = true;
         return;
       }
-      total.value -= item.amount * item.price;
-      if (total.value < 0) {
-        total.value = 0;
-      }
     };
 
-    const checkoutItem = (item, price) => {
-      item.price = price;
-      total.value += item.amount * item.price;
+    const closeModal = () => {
+      const i = items.value.findIndex((item) => item.id == currentId.value);
+      items.value[i].picked = false;
+      currentId.value = null;
+      showModal.value = false;
+    };
+
+    const checkoutItem = (price) => {
+      const i = items.value.findIndex((item) => item.id == currentId.value);
+      items.value[i].price = price;
+      showModal.value = false;
       saveList();
     };
 
@@ -176,18 +226,20 @@ export default {
     return {
       list,
       items,
-      newItem,
       loading,
       editing,
       buying,
       total,
       showModal,
+      progress,
+      progressColor,
       addItem,
       removeItem,
       saveList,
       deleteList,
       getPrice,
       checkoutItem,
+      closeModal,
       onMounted,
     };
   },
@@ -203,5 +255,29 @@ export default {
 <style>
 .back {
   margin-top: -2rem;
+}
+.total {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 90px;
+  width: 100%;
+
+  background: rgb(255, 255, 255);
+  color: #222;
+  padding: 0.5rem 0.8rem;
+  font-weight: 300;
+  font-size: 28px;
+}
+.picked {
+  background-color: #67e7405d;
+}
+.form-check {
+  flex: 1;
 }
 </style>

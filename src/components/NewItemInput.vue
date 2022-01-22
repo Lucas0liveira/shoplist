@@ -1,15 +1,16 @@
 <template>
-  <div class="input-group mb-3">
+  <div class="input-group mb-4">
     <input
       type="text"
-      class="form-control"
-      placeholder="Bolho de murango"
+      class="form-control nes-input"
+      placeholder="Add item"
       aria-label="Novo item"
       aria-describedby="button-addon"
       v-model="newItem"
+      @keyup.enter="addItem()"
     />
     <button
-      class="btn btn-primary"
+      class="nes-btn is-success"
       style="border-radius: 0px 5px 5px 0px"
       type="button"
       @click="addItem"
@@ -21,20 +22,17 @@
 </template>
 
 <script>
-import { ref } from "vue";
-
 export default {
-  setup() {
-    const newItem = ref("");
-
-    const addItem = () => {
-      this.$emit("input", newItem);
-    };
-
+  data() {
     return {
-      newItem,
-      addItem,
+      newItem: "",
     };
+  },
+  methods: {
+    addItem() {
+      this.$emit("insert", { input: this.newItem });
+      this.newItem = "";
+    },
   },
 };
 </script>

@@ -1,21 +1,19 @@
 <template>
   <div class="home">
     <div class="d-flex justify-content-between align-items-center my-3">
-      <p class="h2 m-0">Minhas Listas</p>
-      <button class="btn btn-primary btn-sm" @click="newList">
-        Nova lista
-      </button>
+      <p class="h4 m-0">Minhas Listas</p>
     </div>
 
     <ul
       v-if="!loading"
-      class="accordion accordion-flush list-group"
+      class="accordion accordion-flush list-group mb-3"
       id="accordionFlushExample"
     >
       <li
-        class="accordion-item list-group-item"
-        v-for="list in lists"
+        v-for="(list, index) in lists"
         :key="list.id"
+        class="nes-balloon nes-pointer"
+        :class="index % 2 === 0 ? 'from-left' : 'from-right'"
         @click="$router.push(`/list/${list.id}`)"
       >
         <div class="accordion-header" id="flush-headingOne">
@@ -36,6 +34,11 @@
         <span class="visually-hidden">Loading...</span>
       </div>
     </div>
+  </div>
+  <div class="foot">
+    <button class="nes-btn block is-success btn-sm" @click="newList">
+      Nova lista
+    </button>
   </div>
 </template>
 
@@ -113,5 +116,12 @@ export default {
 <style>
 .list-group-item {
   cursor: pointer;
+}
+.foot {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 1rem;
 }
 </style>

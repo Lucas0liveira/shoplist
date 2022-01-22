@@ -1,15 +1,16 @@
 <template>
   <div class="col-6 form-widget">
     <h1 class="header">Bem vindo à Shoppist</h1>
-    <p class="description">Sua SmartList High-Stakes na Web!</p>
-    <div>
+    <p class="nes-balloon from-right">Sua lista de compras na web!</p>
+    <div class="foot">
       <button
         type="submit"
-        class="btn btn-primary"
+        class="nes-btn is-primary block flex items-center"
         @click="signInWithDiscord"
         :disabled="loading"
       >
         Entrar com Discord
+        <i class="nes-icon snes-logo is-small" />
       </button>
     </div>
   </div>
@@ -36,7 +37,6 @@ export default {
 
     onMounted(() => {
       if (isUserSignedIn.value) {
-        console.log("OPA");
         router.push("/");
       }
     });
@@ -48,3 +48,12 @@ export default {
   },
 };
 </script>
+<style scoped>
+.foot {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 1rem;
+}
+</style>

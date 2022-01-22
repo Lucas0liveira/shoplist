@@ -21,3 +21,13 @@ export default {
   },
 };
 </script>
+<style scoped>
+html,
+body,
+pre,
+code,
+kbd,
+samp {
+  font-family: "Press Start 2P";
+}
+</style>
