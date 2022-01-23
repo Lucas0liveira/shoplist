@@ -36,13 +36,16 @@ export default {
     }
 
     onMounted(() => {
-      if (isUserSignedIn.value) {
-        router.push("/");
-      }
+      setTimeout(() => {
+        if (isUserSignedIn.value) {
+          router.push("/");
+        }
+      }, 500);
     });
 
     return {
       loading,
+      isUserSignedIn,
       signInWithDiscord,
     };
   },
