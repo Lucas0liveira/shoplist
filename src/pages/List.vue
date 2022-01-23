@@ -14,7 +14,7 @@
 
   <ul class="list-group" v-if="!loading && editing">
     <li
-      class="list-group-item nes-container is-rounded d-flex items-center justify-content-between p-1"
+      class="list-group-item nes-container d-flex items-center justify-content-between p-1"
       :class="item.picked ? 'picked' : ''"
       v-for="item in items"
       :key="item.id"
@@ -252,7 +252,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .back {
   margin-top: -2rem;
 }
@@ -275,7 +275,10 @@ export default {
   font-size: 28px;
 }
 .picked {
-  background-color: #67e7405d;
+  background-color: #92cc41;
+  box-shadow: inset -4px -4px #4aa52e;
+  opacity: 0.7;
+  color: #fff !important;
 }
 .form-check {
   flex: 1;
