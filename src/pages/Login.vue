@@ -44,18 +44,18 @@ export default {
     const router = useRouter();
     const buttons = ref([
       {
-        name: "Google",
-        provider: "google",
-        text_color: "#ffffff",
-        bg_color: "#d44538",
-        shadow_color: "#b23121",
-      },
-      {
         name: "Discord",
         provider: "discord",
         text_color: "#f6f6f6",
         bg_color: "#5865f2",
         shadow_color: "#1d0bba",
+      },
+      /* {
+        name: "Google",
+        provider: "google",
+        text_color: "#ffffff",
+        bg_color: "#d44538",
+        shadow_color: "#b23121",
       },
       {
         name: "Twitch",
@@ -70,7 +70,7 @@ export default {
         text_color: "#E1E8ED",
         bg_color: "#1DA1F2",
         shadow_color: "#187cce",
-      },
+      }, */
     ]);
     const isUserSignedIn = computed(() => Boolean(supabase.auth.user()));
 
