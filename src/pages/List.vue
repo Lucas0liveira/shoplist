@@ -132,12 +132,14 @@ export default {
         picked: false,
         price: 0,
       });
+      saveList();
     };
 
     const removeItem = (id) => {
       if (confirm("Deseja remover esse item?")) {
         items.value = items.value.filter((item) => item.id !== id);
       }
+      saveList();
     };
 
     const getList = async () => {
